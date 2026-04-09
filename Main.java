@@ -1,3 +1,6 @@
 public class Main {
-    IO.println("test");
+    void main() {
+        App app = new App("Havannah");
+        app.launch();
+    }
 }
