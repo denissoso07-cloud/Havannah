@@ -5,22 +5,21 @@ public class App {
   Boolean end = false;
   Boolean turn = true; // True: joueur 1, False: joueur 2
   ArrayList<Integer> moves = new ArrayList<>();
+  Integer size;
+  Board board;
 
-  App(String name) {
+  App(String name, Integer size) {
     this.name = name;
+    this.board = new Board(5);
   }
 
   public void launch() {
     while (!end) {
-      showGame();
-      showMoves();
-      play();
+      board.show(name);
+      // showMoves();
+      // play();
+      end = true;
     }
-  }
-
-  public void showGame() {
-    IO.println(this.name + ": ");
-    IO.println("<Affichage du tableau>");
   }
 
   public void showMoves() {
