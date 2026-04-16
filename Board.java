@@ -26,6 +26,7 @@ public class Board {
   public void show(String name) {
     IO.println(name + ":");
 
+    // C compliqué d'afficher je vais voir ca plus tard
     for (int y = size; y >= -size; y--) {
 
       int minX = Math.max(-size, -y - size);
