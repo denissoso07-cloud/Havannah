@@ -1,3 +1,5 @@
 public class Main {
-    -uzu-ru-z
+    public class caca{
+    
+    }
 }
