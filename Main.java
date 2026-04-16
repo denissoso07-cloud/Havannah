@@ -4,7 +4,7 @@ public class Main {
         app.launch();
         // deuxieme tesy de sync
         // CHANGEMENT
-        // test branch main
+        // test branch main 2
     }
 }
 
