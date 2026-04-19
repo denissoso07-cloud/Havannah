@@ -15,8 +15,6 @@ public class Board {
         }
       }
     }
-
-    this.board.put("0,0", new Cell(0, 0));
   }
 
   boolean isValid(int x, int y) {
@@ -25,21 +23,5 @@ public class Board {
 
   public void show(String name) {
     IO.println(name + ":");
-
-    // C compliqué d'afficher je vais voir ca plus tard
-    for (int y = size; y >= -size; y--) {
-
-      int minX = Math.max(-size, -y - size);
-      int maxX = Math.min(size, -y + size);
-
-      // Décalage correct
-      IO.print(" ".repeat(size - (maxX - minX + 1) / 2));
-
-      for (int x = minX; x <= maxX; x++) {
-        IO.print(". ");
-      }
-
-      IO.println();
-    }
   }
 }
