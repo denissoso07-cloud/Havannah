@@ -39,6 +39,6 @@ public class Board {
   }
 
   public void show(String name) {
-    IO.println(name + ":");
+    IO.println(Main.VIOLET + name + ":" + Main.RESET);
   }
 }

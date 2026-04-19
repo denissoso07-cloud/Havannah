@@ -24,10 +24,15 @@ public class Cell {
   }
 
   public void clicked(Integer joueur) {
-    this.state = joueur;
+    if (this.state == 0) {
+      this.state = joueur;
+    } else {
+      IO.println(Main.ROUGE + "Cette case est deja prise: " + this.toString() + Main.RESET);
+    }
   }
 
   public String toString() {
-    return "Pos (x, y): (" + this.x + "," + this.y + "), State: " + this.state + ", Gem" + this.gem;
+    return "Pos: (" + this.x + "," + this.y + "), State: " + this.state + ", Gem: "
+        + (this.gem == null ? "-" : this.gem);
   }
 }
