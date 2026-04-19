@@ -8,6 +8,10 @@ public class Cell {
   Integer state;
   Integer x;
   Integer y;
+  /*
+   * Rareté d'une gem, 1 ou 2
+   */
+  Integer gem;
 
   Cell(Integer x, Integer y) {
     this.state = 0;
@@ -15,11 +19,15 @@ public class Cell {
     this.y = y;
   }
 
-  public void clicked(Integer joueur) {
+  public void setGem(Integer gem) {
+    this.gem = gem;
+  }
 
+  public void clicked(Integer joueur) {
+    this.state = joueur;
   }
 
   public String toString() {
-    return this.state.toString();
+    return "Pos (x, y): (" + this.x + "," + this.y + "), State: " + this.state + ", Gem" + this.gem;
   }
 }

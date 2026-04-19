@@ -15,6 +15,23 @@ public class Board {
         }
       }
     }
+    addGems();
+  }
+
+  public void addGems() {
+    Integer gemNumber = 0;
+    Integer x;
+    Integer y;
+    while (gemNumber < 10) {
+      x = (int) (Math.random() * 5);
+      y = (int) (Math.random() * 5);
+      if (isValid(x, y)) {
+        gemNumber++;
+        this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
+      }
+    }
+    ;
+
   }
 
   boolean isValid(int x, int y) {
