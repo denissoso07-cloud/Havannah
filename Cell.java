@@ -15,6 +15,7 @@ public class Cell {
 
   Cell(Integer x, Integer y) {
     this.state = 0;
+    this.gem = 0;
     this.x = x;
     this.y = y;
   }

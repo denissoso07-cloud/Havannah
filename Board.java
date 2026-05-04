@@ -24,26 +24,31 @@ public class Board {
     Integer x;
     Integer y;
     while (gemNumber < 10) {
-      x = (int) (Math.random() * 5);
-      y = (int) (Math.random() * 5);
-      if (isValid(x, y)) {
+      // Génère un nombre entre -5 et 5 inclus
+      x = (int) (Math.random() * 10) - 5;
+      y = (int) (Math.random() * 10) - 5;
+
+      if (isValid(x, y) && isNotGem(x, y)) {
         gemNumber++;
+        // On garde ta logique pour le type de gemme (1 ou 2)
         this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
       }
     }
-    ;
-
   }
 
   // on recupere toutes les cellules qui ont une gemme
   public ArrayList<Cell> getGems() {
     ArrayList<Cell> gems = new ArrayList<>();
     for (Cell cell : board.values()) {
-      if (cell.gem != null) {
+      if (cell.gem != 0) {
         gems.add(cell);
       }
     }
     return gems;
+  }
+
+  boolean isNotGem(int x, int y) {
+    return this.board.get(x + "," + y).gem == 0;
   }
 
   boolean isValid(int x, int y) {
