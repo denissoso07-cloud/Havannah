@@ -32,6 +32,7 @@ public class Board {
         gemNumber++;
         // On garde ta logique pour le type de gemme (1 ou 2)
         this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
+        
       }
     }
   }

@@ -9,12 +9,10 @@ public class Main {
     public static final String VIOLET = "\u001B[35m";
 
     void main() {
-        App app = new App("Havannah", 5);
-        app.launch();
-
         // on cree le plateau logique
         // c'est lui qui place les gemmes aleatoirement
-        Board board = new Board(10);
+        App app = new App("Havannah", 5);
+        app.launch();
 
         // on cree le plateau graphique
         echequier jeu = new echequier();
@@ -23,7 +21,7 @@ public class Main {
         jeu.echec();
 
         // etape 4 : on recupere les gemmes du board logique
-        ArrayList<Cell> gems = board.getGems();
+        ArrayList<Cell> gems = app.board.getGems();
 
         // etape 5 : on les affiche sur le plateau graphique
         jeu.afficherGems(gems);
