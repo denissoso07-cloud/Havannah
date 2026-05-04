@@ -25,14 +25,14 @@ public class Board {
     Integer y;
     while (gemNumber < 10) {
       // Génère un nombre entre -5 et 5 inclus
-      x = (int) (Math.random() * 10) - 5;
-      y = (int) (Math.random() * 10) - 5;
+      x = (int) (Math.random() * 5) - 5;
+      y = (int) (Math.random() * 5) - 5;
 
       if (isValid(x, y) && isNotGem(x, y)) {
         gemNumber++;
         // On garde ta logique pour le type de gemme (1 ou 2)
         this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
-        
+
       }
     }
   }

@@ -14,11 +14,15 @@ public class App {
   }
 
   public void launch() {
+    // compteur temporaire pour faire 4 moves
+    int moves = 0;
     while (!end) {
       board.show(name);
       // showMoves();
-      // play();
-      end = true;
+      play();
+      moves++;
+      if (moves > 4)
+        end = true;
     }
   }
 
@@ -38,6 +42,6 @@ public class App {
     // exemple d'output
     this.moves.add(cell);
     this.turn = !this.turn;
-    // this.end = true;
+
   }
 }
