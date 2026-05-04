@@ -1,5 +1,7 @@
 //HIDE
 //OUT canvas.png
+
+
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
 import java.awt.Graphics;
