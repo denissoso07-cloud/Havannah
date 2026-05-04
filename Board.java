@@ -29,6 +29,7 @@ public class Board {
       if (isValid(x, y)) {
         gemNumber++;
         this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
+        
       }
     }
     ;
