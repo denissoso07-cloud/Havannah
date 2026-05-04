@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Board {
@@ -32,6 +33,17 @@ public class Board {
     }
     ;
 
+  }
+
+  // on recupere toutes les cellules qui ont une gemme
+  public ArrayList<Cell> getGems() {
+    ArrayList<Cell> gems = new ArrayList<>();
+    for (Cell cell : board.values()) {
+      if (cell.gem != null) {
+        gems.add(cell);
+      }
+    }
+    return gems;
   }
 
   boolean isValid(int x, int y) {
