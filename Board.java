@@ -25,8 +25,8 @@ public class Board {
     Integer y;
     while (gemNumber < 10) {
       // Génère un nombre entre -5 et 5 inclus
-      x = (int) (Math.random() * 5) - 5;
-      y = (int) (Math.random() * 5) - 5;
+      x = (int) (Math.random() * this.size) - this.size / 2;
+      y = (int) (Math.random() * this.size) - this.size / 2;
 
       if (isValid(x, y) && isNotGem(x, y)) {
         gemNumber++;
