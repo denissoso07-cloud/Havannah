@@ -45,11 +45,11 @@ public class Board {
     int[][] voisins = getVoisins(x, y);
 
     for (int i = 0; i < voisins.length; i++) {
-      Cell v1 = board.get(voisins[i][0] + "," + voisins[i][1]);
+      Cell v1 = board[voisins[i][0]][voisins[i][1]];
       if (v1 != null && v1.state == joueur) { // vérifie si v1 est un voisin
 
         for (int j = i + 1; j < voisins.length; j++) {
-          Cell v2 = board.get(voisins[j][0] + "," + voisins[j][1]);
+          Cell v2 = board[voisins[j][0]][voisins[j][1]];
           if (v2 != null && v2.state == joueur) { // vérifie si v2 est un voisin
 
             // vérifie si v1 et v2 sont voisines
@@ -70,11 +70,12 @@ public class Board {
 
   // La formule magique pour couper les coins du losange et faire un hexagone
   boolean isValid(int x, int y) {
-    int center = size - 1;
-    // On vérifie la distance par rapport au centre sur les 3 axes
-    return Math.abs(x - center) < size &&
-        Math.abs(y - center) < size &&
-        Math.abs((x - center) - (y - center)) < size;
+    // int center = size - 1;
+    // // On vérifie la distance par rapport au centre sur les 3 axes
+    // return Math.abs(x - center) < size &&
+    // Math.abs(y - center) < size &&
+    // Math.abs((x - center) - (y - center)) < size;
+    return true;
   }
 
   public void addGems() {
