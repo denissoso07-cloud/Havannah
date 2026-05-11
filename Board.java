@@ -45,10 +45,12 @@ public class Board {
     int[][] voisins = getVoisins(x, y);
 
     for (int i = 0; i < voisins.length; i++) {
+      if (!isValid(voisins[i][0], voisins[i][1])) continue;
       Cell v1 = board[voisins[i][0]][voisins[i][1]];
       if (v1 != null && v1.state == joueur) { // vérifie si v1 est un voisin
 
         for (int j = i + 1; j < voisins.length; j++) {
+          if (!isValid(voisins[j][0], voisins[j][1])) continue;
           Cell v2 = board[voisins[j][0]][voisins[j][1]];
           if (v2 != null && v2.state == joueur) { // vérifie si v2 est un voisin
 
