@@ -67,6 +67,49 @@ public class Board {
     }
     return false;
   }
+  // verifierLigne
+public int compterDirection(int x, int y, int joueur, int dx, int dy) {
+    int count = 0;
+    for (int step = 1; step <= 4; step++) {
+        int nx = x + dx*step;
+        int ny = y + dy*step;
+        if (!isValid(nx, ny)) break;
+        Cell c = board[nx][ny];
+        if (c == null || c.state != joueur) break;
+        count++;
+    }
+    return count;
+}
+
+public boolean verifierLigne(int x, int y, int joueur) {
+    int[][][] directions = {{{1,0},{-1,0}}, {{0,1},{0,-1}}, {{1,-1},{-1,1}}};
+    for (int[][] dir : directions) {
+        int total = 1 + compterDirection(x, y, joueur, dir[0][0], dir[0][1])
+                      + compterDirection(x, y, joueur, dir[1][0], dir[1][1]);
+        if (total >= 5) {
+            structures.add(new Structure("ligne", joueur, new ArrayList<>()));
+            return true;
+        }
+    }
+    return false;
+}
+
+// verifierEtoile
+public boolean verifierEtoile(int x, int y, int joueur) {
+    int[][] voisins = getVoisins(x, y);
+    ArrayList<int[]> cases = new ArrayList<>();
+    cases.add(new int[]{x, y});
+    for (int i = 0; i < voisins.length; i++) {
+        if (!isValid(voisins[i][0], voisins[i][1])) continue;
+        Cell c = board[voisins[i][0]][voisins[i][1]];
+        if (c != null && c.state == joueur) cases.add(voisins[i]);
+    }
+    if (cases.size() == 7) {
+        structures.add(new Structure("etoile", joueur, cases));
+        return true;
+    }
+    return false;
+}
 
   boolean occupied(int x, int y) {
     return board[x][y].state != 0;
