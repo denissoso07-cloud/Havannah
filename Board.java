@@ -110,7 +110,8 @@ public boolean verifierEtoile(int x, int y, int joueur) {
     for (int i = 0; i < voisins.length; i++) {
         if (!isValid(voisins[i][0], voisins[i][1])) continue;
         Cell c = board[voisins[i][0]][voisins[i][1]];
-        if (c != null && c.state == joueur) cases.add(voisins[i]);
+        if (c != null && c.state == joueur) {
+          cases.add(voisins[i]);}
     }
     if (cases.size() == 7) {
         structures.add(new Structure("etoile", joueur, cases));

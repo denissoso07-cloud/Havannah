@@ -139,7 +139,7 @@ public class App {
                 + board.structures.get(i) + Main.RESET);
         }
  
-        // 5. Si au moins une nouvelle structure, on gère les déclenchements
+        // Si au moins une nouvelle structure, on gère les déclenchements
         if (!nouvelles.isEmpty()) {
             int points = board.gererDeclenchements(joueur, nouvelles);
             if (points > 0) {
@@ -150,8 +150,8 @@ public class App {
             }
         }
  
-        // 6. Affichage du score courant
-        IO.println("Score → Joueur 1 : " + pointsJoueur1
+        //  Affichage du score courant
+        IO.println("Score -> Joueur 1 : " + pointsJoueur1
             + "  |  Joueur 2 : " + pointsJoueur2);
  
         // Condition de fin : toutes les gemmes récoltées / plateau plein
