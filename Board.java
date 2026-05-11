@@ -68,14 +68,12 @@ public class Board {
     return false;
   }
 
-  // La formule magique pour couper les coins du losange et faire un hexagone
   boolean isValid(int x, int y) {
-    // int center = size - 1;
-    // // On vérifie la distance par rapport au centre sur les 3 axes
-    // return Math.abs(x - center) < size &&
-    // Math.abs(y - center) < size &&
-    // Math.abs((x - center) - (y - center)) < size;
-    return true;
+    int center = size - 1;
+    // On vérifie la distance par rapport au centre sur les 3 axes
+    return Math.abs(x - center) < size &&
+        Math.abs(y - center) < size &&
+        Math.abs((x - center) - (y - center)) < size;
   }
 
   public void addGems() {
