@@ -27,9 +27,9 @@ public class Board {
   // permet d'avoir les 6 voisins d'une case hexagonale
   public int[][] getVoisins(int x, int y) {
     return new int[][] {
-        { x + 1, y }, { x - 1, y }, // gauche / droite
-        { x, y + 1 }, { x, y - 1 }, // haut / bas
-        { x + 1, y - 1 }, { x - 1, y + 1 } // diagonales gauche / droite
+        { x + 1, y }, { x - 1, y }, // droite / gauche
+        { x, y + 1 }, { x, y - 1 }, // bas / haut
+        { x + 1, y - 1 }, { x - 1, y + 1 } // diagonales haut-droit / bas-gauche
     };
   }
 
@@ -72,35 +72,51 @@ public class Board {
     return false;
   }
 
-public boolean verifierLigne(int x, int y, int joueur) {
-    int[][][] directions = {{{1,0},{-1,0}}, {{0,1},{0,-1}}, {{1,-1},{-1,1}}};
-    for (int[][] dir : directions) {
-        // On collecte les cases dans les deux sens
-        ArrayList<int[]> cases = new ArrayList<>();
-        cases.add(new int[]{x, y});
-
-        for (int step = 1; step <= 4; step++) {
-            int nx = x + dir[0][0]*step, ny = y + dir[0][1]*step;
-            if (!isValid(nx, ny)) break;
+public void chercherDansDirection(ArrayList<int[]> liste, int x, int y, int dx, int dy, int joueur) {
+    for (int step = 1; step <= 4; step++) {
+        int nx = x + (dx * step);
+        int ny = y + (dy * step);
+        
+        if (isValid(nx, ny)) {
             Cell c = board[nx][ny];
-            if (c == null || c.state != joueur) break;
-            cases.add(new int[]{nx, ny});
-        }
-        for (int step = 1; step <= 4; step++) {
-            int nx = x + dir[1][0]*step, ny = y + dir[1][1]*step;
-            if (!isValid(nx, ny)) break;
-            Cell c = board[nx][ny];
-            if (c == null || c.state != joueur) break;
-            cases.add(new int[]{nx, ny});
-        }
-
-        if (cases.size() >= 5) {
-            structures.add(new Structure("ligne", joueur, cases));
-            return true;
+            if (c != null && c.state == joueur) {
+                liste.add(new int[]{nx, ny});
+            } else {
+                break; // On a trouvé une case vide ou un ennemi, la ligne s'arrête
+            }
+        } else {
+            break; // On est sorti du plateau
         }
     }
+}
+
+public boolean verifierLigne(int x, int y, int joueur) {
+    
+    //AXE VERTICAL (Haut <-> Bas)
+    ArrayList<int[]> ligneV = new ArrayList<>();
+    ligneV.add(new int[]{x, y});
+    chercherDansDirection(ligneV, x, y, 0, 1, joueur);  // Chercher en bas
+    chercherDansDirection(ligneV, x, y, 0, -1, joueur); // Chercher en haut
+    if (ligneV.size() >= 5) {
+        structures.add(new Structure("ligne", joueur, ligneV));
+        return true;
+    }
+
+    //AXE DIAGONAL
+    ArrayList<int[]> ligneD = new ArrayList<>();
+    ligneD.add(new int[]{x, y});
+    chercherDansDirection(ligneD, x, y, 1, -1, joueur); // Chercher Diagonale haut-droite
+    chercherDansDirection(ligneD, x, y, -1, 1, joueur); // Chercher Diagonale bas-gauche
+    chercherDansDirection(ligneD, x, y, -1, -1, joueur); // Chercher Diagonale haut-gauche
+    chercherDansDirection(ligneD, x, y, 1, 1, joueur); // Chercher Diagonale bas-droit
+    if (ligneD.size() >= 5) {
+        structures.add(new Structure("ligne", joueur, ligneD));
+        return true;
+    }
+
     return false;
 }
+
 
 // verifierEtoile
 public boolean verifierEtoile(int x, int y, int joueur) {
