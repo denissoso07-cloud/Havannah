@@ -121,23 +121,9 @@ public boolean verifierEtoile(int x, int y, int joueur) {
 } 
 
 public void verifierStructures(int x, int y, int joueur) {
-    int avant = structures.size();
     verifierTriangle(x, y, joueur);
     verifierLigne(x, y, joueur);
     verifierEtoile(x, y, joueur);
-
-    // on recupere uniquement les nouvelles structures de ce tour
-    ArrayList<Structure> nouvelles = new ArrayList<>();
-    for (int k = avant; k < structures.size(); k++) {
-        nouvelles.add(structures.get(k));
-    }
-
-    if (!nouvelles.isEmpty()) {
-        int points = gererDeclenchements(joueur, nouvelles);
-        if (points > 0) {
-            IO.println(Main.JAUNE + "Points gagnes ce tour : +" + points + Main.RESET);
-        }
-    }
 }
 
 public int gererDeclenchements(int joueur, ArrayList<Structure> nouvellesStructures) {
@@ -215,7 +201,7 @@ public int prendrGemme(int x, int y) {
     IO.println(Main.JAUNE + "Gemme revelee en (" + x + "," + y + ") → +" + points + " pts" + Main.RESET);
 
     jeu.dessinerGem(x, y, points);
-    
+
     cell.gem = 0; // la gemme est prise
     return points;
 }
