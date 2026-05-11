@@ -2,118 +2,71 @@ import java.util.ArrayList;
 
 public class Echequier {
     double radius = 20;
-    double h = 1.7 * radius; // hauteur
-    double w = 30; // espacement vertical entre centres
-    double startX = 450; // position horizontale
-    double startY = 170; // point de départ en Y
-    double maxCols = 9;
+    // Math.sqrt(3) * radius est la distance exacte entre deux centres d'hexagones
+    double h = Math.sqrt(3) * radius;
+    double w = 1.5 * radius; // Les colonnes se chevauchent horizontalement
 
-    public void echec() {
+    double startX = 100;
+    double startY = 200;
+    int size; // Un Havannah de taille 5 a des coordonnées de -4 à 4
 
-        for (int j = 0; j < maxCols; j++) {
-            double cx = startX + j * w;
-            double offsetY;
-
-            if (j < maxCols / 2) {
-                offsetY = -(j * h / 2); // monte progressivement
-            } else {
-                offsetY = -((maxCols - 1 - j) * h / 2); // redescend progressivement
-            }
-
-            double nbHex;
-            if (j < maxCols / 2) {
-                nbHex = 5 + j; // augmente
-            } else {
-                nbHex = 5 + (maxCols - 1 - j); // diminue
-            }
-
-            for (int i = 0; i < nbHex; i++) {
-                double cy = startY + offsetY + i * h; // i qui avance verticalement
-                Hexagone box = new Hexagone(cx, cy, radius);
-                box.draw();
+    public void echec(Cell[][] board, int size) {
+        this.size = size;
+        // On parcourt tout le tableau 2D (0 à 10 si size est 10)
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[x].length; y++) {
+                if (board[x][y] != null) {
+                    double[] coords = getCoords(x, y);
+                    Hexagone box = new Hexagone(coords[0], coords[1], radius);
+                    box.draw();
+                }
             }
         }
     }
 
-    public void PionJ1(double cx, double cy) {
-        // cx, cy = centre de l'hexagone
-        // on décale de -radius pour avoir le coin haut-gauche de l'ellipse
-        Ellipse j1 = new Ellipse(cx - radius, cy - radius, 20, 20);
-        j1.setColor(Color.BLACK);
-        j1.fill();
+    public double[] getCoords(int x, int y) {
+        // 1. Calcul de X : les colonnes sont espacées de 1.5 * radius
+        double cx = startX + x * w;
 
+        // 2. Calcul de Y : On ajoute un décalage vertical (x * h / 2)
+        // pour créer la structure en nid d'abeille
+        double cy = startY + (y * h) - (x * h / 2);
+
+        return new double[] { cx, cy };
     }
 
-    public void PionJ2(double cx, double cy) {
-        Ellipse j2 = new Ellipse(cx - radius, cy - radius, 20, 20);
-        j2.draw();
+    // Place un pion sur une case spécifique (x, y) du tableau
+    public void placePion(Boolean turn, int x, int y) {
+        double[] coord = getCoords(x, y);
+        double cx = coord[0];
+        double cy = coord[1];
 
+        Ellipse pion = new Ellipse(cx - (radius / 2), cy - (radius / 2), radius, radius);
+        if (turn) {
+            pion.setColor(Color.BLACK);
+            pion.fill();
+        } else {
+            pion.draw();
+        }
     }
 
-    // dessine une gemme sur une case (j, i) du plateau
-    // type 1 = gemme simple (jaune), type 2 = gemme rare (verte)
-    public void dessinerGem(int j, int i, int type) {
+    // Dessine toutes les gemmes
+    public void afficherGems(ArrayList<Cell> gems) {
+        for (Cell cell : gems) {
+            dessinerGem(cell.x, cell.y, cell.gem);
+        }
+    }
 
-        // on recupere le centre de la case (j, i)
-        double[] centre = getCentreGems(j, i);
-        double cx = centre[0];
-        double cy = centre[1];
-
-        // on dessine un petit hexagone colore
-        Hexagone gem = new Hexagone(cx, cy, radius / 2);
+    public void dessinerGem(int x, int y, int type) {
+        double[] coord = getCoords(x, y);
+        Hexagone gem = new Hexagone(coord[0], coord[1], radius / 2);
 
         if (type == 1) {
-            gem.setColor(Color.YELLOW); // gemme simple = jaune
+            gem.setColor(Color.YELLOW);
         } else {
-            gem.setColor(Color.GREEN); // gemme rare = vert
+            gem.setColor(Color.GREEN);
         }
-
         gem.fill();
     }
 
-    // parcourt la liste des gemmes du Board et les affiche
-    public void afficherGems(ArrayList<Cell> gems) {
-
-        for (int k = 0; k < gems.size(); k++) {
-            Cell cell = gems.get(k);
-
-            // conversion : coordonnees logiques (x,y) → indices graphiques (j,i)
-            // le plateau logique va de -size a +size
-            // le plateau graphique commence a 0
-            // donc on decale de maxCols/2 pour centrer
-            int j = cell.x + (int) (maxCols / 2);
-            int i = cell.y + (int) (maxCols / 2);
-
-            dessinerGem(j, i, cell.gem);
-        }
-    }
-
-    public double[] getCentre(int j, int i) {
-        double cx = startX + j * w + 10;
-        double offsetY;
-        if (j < maxCols / 2) {
-            offsetY = -(j * h / 2);
-        } else {
-            offsetY = -((maxCols - 1 - j) * h / 2);
-        }
-        double cy = startY + offsetY + i * h;
-        cy += 10;
-        return new double[] { cx, cy };
-    }
-
-    public double[] getCentreGems(int j, int i) {
-        double cx = startX + j * w;
-        double offsetY;
-        if (j < maxCols / 2) {
-            offsetY = -(j * h / 2);
-        } else {
-            offsetY = -((maxCols - 1 - j) * h / 2);
-        }
-        double cy = startY + offsetY + i * h;
-        return new double[] { cx, cy };
-    }
-
-    public static void main(String[] args) {
-
-    }
 }

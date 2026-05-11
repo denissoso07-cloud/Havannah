@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Main {
     // couleurs
     public static final String RESET = "\u001B[0m";

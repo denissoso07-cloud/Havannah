@@ -1,62 +1,70 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Board {
-  HashMap<String, Cell> board = new HashMap<>();
-  Integer size;
+  // Un tableau 2D au lieu de la HashMap
+  Cell[][] board;
+  int size; // Le nombre d'hexagones sur un côté (ex: 5)
+  int mapSize; // La dimension du tableau (2 * size - 1)
 
-  Board(Integer size) {
+  Board(int size) {
     this.size = size;
+    this.mapSize = 2 * size - 1; // Pour size 5, mapSize = 9
+    this.board = new Cell[mapSize][mapSize];
 
-    for (int y = size; y >= -size; y--) {
-      for (int x = -size; x <= size; x++) {
+    for (int x = 0; x < mapSize; x++) {
+      for (int y = 0; y < mapSize; y++) {
         if (isValid(x, y)) {
-          Cell cell = new Cell(x, y);
-          this.board.put((x + "," + y), cell);
+          this.board[x][y] = new Cell(x, y);
         }
       }
     }
     addGems();
   }
 
+  // La formule magique pour couper les coins du losange et faire un hexagone
+  boolean isValid(int x, int y) {
+    int center = size - 1;
+    // On vérifie la distance par rapport au centre sur les 3 axes
+    return Math.abs(x - center) < size &&
+        Math.abs(y - center) < size &&
+        Math.abs((x - center) - (y - center)) < size;
+  }
+
   public void addGems() {
-    Integer gemNumber = 0;
-    Integer x;
-    Integer y;
+    int gemNumber = 0;
+    int x;
+    int y;
     while (gemNumber < 10) {
-      // Génère un nombre entre -5 et 5 inclus
-      x = (int) (Math.random() * this.size) - this.size / 2;
-      y = (int) (Math.random() * this.size) - this.size / 2;
+      x = (int) (Math.random() * (size + 1));
+      y = (int) (Math.random() * (size + 1));
 
-      if (isValid(x, y) && isNotGem(x, y)) {
+      // Accès direct avec le tableau [x][y]
+      if (isValid(x, y) && this.board[x][y] != null && isNotGem(x, y)) {
         gemNumber++;
-        // On garde ta logique pour le type de gemme (1 ou 2)
-        this.board.get(x + "," + y).setGem((int) (Math.random() * 2) + 1);
-
+        this.board[x][y].setGem((int) (Math.random() * 2) + 1);
       }
     }
   }
 
-  // on recupere toutes les cellules qui ont une gemme
   public ArrayList<Cell> getGems() {
     ArrayList<Cell> gems = new ArrayList<>();
-    for (Cell cell : board.values()) {
-      if (cell.gem != 0) {
-        gems.add(cell);
+    // Double boucle pour parcourir le tableau 2D
+    for (int x = 0; x <= size; x++) {
+      for (int y = 0; y <= size; y++) {
+        Cell cell = board[x][y];
+        if (cell != null && cell.gem != 0) {
+          gems.add(cell);
+        }
       }
     }
     return gems;
   }
 
   boolean isNotGem(int x, int y) {
-    return this.board.get(x + "," + y).gem == 0;
-  }
-
-  boolean isValid(int x, int y) {
-    return Math.abs(x + y) <= size;
+    return this.board[x][y].gem == 0;
   }
 
   public void show(String name) {
-    IO.println(Main.VIOLET + name + ":" + Main.RESET);
+    System.out.println(Main.VIOLET + name + ":" + Main.RESET);
   }
 }
