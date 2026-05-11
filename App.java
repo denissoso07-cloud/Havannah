@@ -19,16 +19,11 @@ public class App {
     this.name = name;
     this.size = size;
     this.mapSize = 2 * size - 1;
-    this.board = new Board(size);
+    this.board = new Board(size, jeu);
 
     // on dessine les hexagones
     jeu.echec(board.board, this.size);
 
-    // etape 4 : on recupere les gemmes du board logique
-    ArrayList<Cell> gems = this.board.getGems();
-
-    // etape 5 : on les affiche sur le plateau graphique
-    jeu.afficherGems(gems);
   }
 
   public void launch() {

@@ -6,11 +6,13 @@ public class Board {
   int size; // Le nombre d'hexagones sur un côté (ex: 5)
   int mapSize; // La dimension du tableau (2 * size - 1)
   ArrayList<Structure> structures = new ArrayList<>(); // liste des structures actives
+  Echequier jeu;
 
-  Board(int size) {
+  Board(int size,Echequier jeu) {
     this.size = size;
     this.mapSize = 2 * size - 1; // Pour size 5, mapSize = 9
     this.board = new Cell[mapSize][mapSize];
+    this.jeu = jeu;
 
     for (int x = 0; x < mapSize; x++) {
       for (int y = 0; y < mapSize; y++) {
@@ -211,6 +213,9 @@ public int prendrGemme(int x, int y) {
 
     int points = cell.gem; // 1 ou 2 selon la rarete
     IO.println(Main.JAUNE + "Gemme revelee en (" + x + "," + y + ") → +" + points + " pts" + Main.RESET);
+
+    jeu.dessinerGem(x, y, points);
+    
     cell.gem = 0; // la gemme est prise
     return points;
 }
