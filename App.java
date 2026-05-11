@@ -60,33 +60,57 @@ public class App {
       Integer x = (int) (Math.random() * this.mapSize);
       Integer y = (int) (Math.random() * this.mapSize);
 
-      if (board.isValid(x, y)) {
+      if (board.isValid(x, y) && !board.occupied(x, y)) {
         casetrouvee = true;
-        IO.println("IA a choisis: " + x + ", " + y);
-        affichePion(false, x, y);
+        IO.println(Main.VERT + "IA a choisis: " + x + ", " + y + Main.RESET);
+        placePion(false, x, y);
       }
     }
 
   }
 
   public void playerPlays() {
-    Integer player;
-    if (this.turn)
-      player = 1;
-    else {
-      player = 2;
+    int player = this.turn ? 1 : 2;
+    int x = -1;
+    int y = -1;
+    boolean saisieValide = false;
+
+    while (!saisieValide) {
+      try {
+        // 1. Lecture et conversion
+        x = Integer.parseInt(IO.readln("Joueur " + player + " x (0-" + (board.mapSize - 1) + "): "));
+        y = Integer.parseInt(IO.readln("Joueur " + player + " y (0-" + (board.mapSize - 1) + "): "));
+
+        if (board.isValid(x, y)) {
+          saisieValide = true;
+        } else {
+          System.out
+              .println(Main.ROUGE + "Erreur : Coordonnées hors limites ou hors du plateau hexagonal !" + Main.RESET);
+        }
+
+      } catch (Exception e) {
+        // Si l'utilisateur tape des lettres au lieu de chiffres
+        System.out.println(Main.ROUGE + "Erreur : Veuillez entrer un nombre." + Main.RESET);
+      }
     }
 
-    // exemple d'input
-    // NE PAS OUBLIER: Enregistrer les inputs pour les placers dans le tableau.
-    Integer x = Integer.valueOf(IO.readln("Joueur " + player + " x: "));
-    Integer y = Integer.valueOf(IO.readln("Joueur " + player + " y: "));
+    // Une fois sorti de la boucle, on place le pion
+    placePion(this.turn, x, y);
 
-    affichePion(this.turn, x, y);
+    // N'oublie pas de mettre à jour l'état de la cellule dans ton objet board !
+    board.board[x][y].state = player;
   }
 
-  public void affichePion(Boolean turn, Integer x, Integer y) {
-    // double[] c = jeu.getCoords(x, y);
-    jeu.placePion(turn, x, y);
+  public void placePion(Boolean turn, Integer x, Integer y) {
+    // Modifications
+    if (board.occupied(x, y)) {
+      IO.println(Main.ROUGE + "Cette case est déjà prise par un joueur!" + Main.RESET);
+      playerPlays();
+    } else {
+      board.board[x][y].clicked(turn);
+      // Affichage
+      jeu.placePion(turn, x, y);
+    }
+
   }
 }

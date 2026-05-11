@@ -24,11 +24,11 @@ public class Cell {
     this.gem = gem;
   }
 
-  public void clicked(Integer joueur) {
+  public void clicked(Boolean turn) {
     if (this.state == 0) {
-      this.state = joueur;
+      this.state = turn ? 1 : 2;
     } else {
-      IO.println(Main.ROUGE + "Cette case est deja prise: " + this.toString() + Main.RESET);
+      IO.println(Main.ROUGE + "Erreur: La case est déjà prise (Cell.clicked)" + Main.RESET);
     }
   }
 
