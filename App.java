@@ -9,6 +9,12 @@ public class App {
   Board board;
   Echequier jeu = new Echequier();
 
+   // Score des deux joueurs
+    int pointsJoueur1 = 0;
+    int pointsJoueur2 = 0;
+
+    int passesConsecutives = 0;
+
   App(String name, Integer size) {
     this.name = name;
     this.size = size;
@@ -47,6 +53,7 @@ public class App {
         // switch le tour du joueur
         this.turn = !this.turn;
       }
+      afficherResultat();
     }
   }
 
@@ -72,16 +79,27 @@ public class App {
     boolean saisieValide = false;
 
     while (!saisieValide) {
+
       try {
         // 1. Lecture et conversion
-        x = Integer.parseInt(IO.readln("Joueur " + player + " x (0-" + (board.mapSize - 1) + "): "));
+        String inputX = IO.readln("Joueur " + player + " x (0-" + (board.mapSize-1) + ") ou 'pass': ");
+        if (inputX.equals("pass")) {
+            passesConsecutives++;
+        if (passesConsecutives >= 2) {
+            IO.println(Main.VIOLET + "Deux passes consécutives. Fin de partie." + Main.RESET);
+            end = true;
+        afficherResultat();
+    }
+    return;
+}
+        passesConsecutives = 0; // remet à zéro si le joueur joue vraiment
+        x = Integer.parseInt(inputX);
         y = Integer.parseInt(IO.readln("Joueur " + player + " y (0-" + (board.mapSize - 1) + "): "));
 
         if (board.isValid(x, y)) {
           saisieValide = true;
         } else {
-          System.out
-              .println(Main.ROUGE + "Erreur : Coordonnées hors limites ou hors du plateau hexagonal !" + Main.RESET);
+              IO.println(Main.ROUGE + "Erreur : Coordonnées hors limites ou hors du plateau hexagonal !" + Main.RESET);
         }
 
       } catch (Exception e) {
@@ -92,9 +110,7 @@ public class App {
 
     // Une fois sorti de la boucle, on place le pion
     placePion(this.turn, x, y);
-
-    // N'oublie pas de mettre à jour l'état de la cellule dans ton objet board !
-    board.board[x][y].state = player;
+   // (jouerCase est maintenant appelée depuis placePion, score inclus)
   }
 
   public void placePion(Boolean turn, Integer x, Integer y) {
@@ -103,12 +119,64 @@ public class App {
       IO.println(Main.ROUGE + "Cette case est déjà prise par un joueur!" + Main.RESET);
       playerPlays();
     } else {
-      int joueur = turn ? 1 : 2;
-      board.board[x][y].clicked(turn);
-      // Affichage
-      jeu.placePion(turn, x, y);
-      board.verifierStructures(x, y, joueur);
+      jouerCase(turn, x, y);
     }
 
   }
+   public void jouerCase(boolean tourJoueur1, int x, int y) {
+        int joueur = tourJoueur1 ? 1 : 2;
+ 
+        // On place le pion sur la cellule logique ET graphique
+        board.board[x][y].clicked(tourJoueur1);
+        jeu.placePion(tourJoueur1, x, y);
+ 
+        // On mémorise combien de structures existaient avant ce coup
+        int nbStructuresAvant = board.structures.size();
+ 
+        // On vérifie les 3 types de structures
+        board.verifierStructures(x, y, joueur);
+ 
+        // On récupère les nouvelles structures formées ce tour
+        ArrayList<Structure> nouvelles = new ArrayList<>();
+        for (int i = nbStructuresAvant; i < board.structures.size(); i++) {
+            nouvelles.add(board.structures.get(i));
+            IO.println(Main.JAUNE + "Nouvelle structure : "
+                + board.structures.get(i) + Main.RESET);
+        }
+ 
+        // 5. Si au moins une nouvelle structure, on gère les déclenchements
+        if (!nouvelles.isEmpty()) {
+            int points = board.gererDeclenchements(joueur, nouvelles);
+            if (points > 0) {
+                IO.println(Main.VERT + "Joueur " + joueur
+                    + " gagne " + points + " point(s) !" + Main.RESET);
+                if (joueur == 1) pointsJoueur1 += points;
+                else             pointsJoueur2 += points;
+            }
+        }
+ 
+        // 6. Affichage du score courant
+        IO.println("Score → Joueur 1 : " + pointsJoueur1
+            + "  |  Joueur 2 : " + pointsJoueur2);
+ 
+        // 7. Condition de fin : toutes les gemmes récoltées
+        if (board.toutesGemmesRecoltees()) {
+            IO.println(Main.VIOLET + "Toutes les gemmes ont été récoltées !" + Main.RESET);
+            end = true;
+        }
+    }
+
+      public void afficherResultat() {
+        IO.println(Main.VIOLET + "\n=== FIN DE PARTIE ===" + Main.RESET);
+        IO.println("Joueur 1 : " + pointsJoueur1 + " point(s)");
+        IO.println("Joueur 2 : " + pointsJoueur2 + " point(s)");
+ 
+        if (pointsJoueur1 > pointsJoueur2) {
+            IO.println(Main.VERT + "Joueur 1 gagne !" + Main.RESET);
+        } else if (pointsJoueur2 > pointsJoueur1) {
+            IO.println(Main.VERT + "Joueur 2 gagne !" + Main.RESET);
+        } else {
+            IO.println(Main.JAUNE + "Égalité !" + Main.RESET);
+        }
+    }
 }

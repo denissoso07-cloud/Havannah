@@ -69,27 +69,31 @@ public class Board {
     }
     return false;
   }
-  // verifierLigne
-public int compterDirection(int x, int y, int joueur, int dx, int dy) {
-    int count = 0;
-    for (int step = 1; step <= 4; step++) {
-        int nx = x + dx*step;
-        int ny = y + dy*step;
-        if (!isValid(nx, ny)) break;
-        Cell c = board[nx][ny];
-        if (c == null || c.state != joueur) break;
-        count++;
-    }
-    return count;
-}
 
 public boolean verifierLigne(int x, int y, int joueur) {
     int[][][] directions = {{{1,0},{-1,0}}, {{0,1},{0,-1}}, {{1,-1},{-1,1}}};
     for (int[][] dir : directions) {
-        int total = 1 + compterDirection(x, y, joueur, dir[0][0], dir[0][1])
-                      + compterDirection(x, y, joueur, dir[1][0], dir[1][1]);
-        if (total >= 5) {
-            structures.add(new Structure("ligne", joueur, new ArrayList<>()));
+        // On collecte les cases dans les deux sens
+        ArrayList<int[]> cases = new ArrayList<>();
+        cases.add(new int[]{x, y});
+
+        for (int step = 1; step <= 4; step++) {
+            int nx = x + dir[0][0]*step, ny = y + dir[0][1]*step;
+            if (!isValid(nx, ny)) break;
+            Cell c = board[nx][ny];
+            if (c == null || c.state != joueur) break;
+            cases.add(new int[]{nx, ny});
+        }
+        for (int step = 1; step <= 4; step++) {
+            int nx = x + dir[1][0]*step, ny = y + dir[1][1]*step;
+            if (!isValid(nx, ny)) break;
+            Cell c = board[nx][ny];
+            if (c == null || c.state != joueur) break;
+            cases.add(new int[]{nx, ny});
+        }
+
+        if (cases.size() >= 5) {
+            structures.add(new Structure("ligne", joueur, cases));
             return true;
         }
     }
@@ -247,6 +251,10 @@ public int prendrGemme(int x, int y) {
                 declencherChaine(autre, joueur); // appel récursif = réaction en chaîne
             }
         }
+    }
+
+    public boolean toutesGemmesRecoltees() {
+        return getGems().isEmpty();
     }
 
   boolean occupied(int x, int y) {
