@@ -62,7 +62,7 @@ public class App {
 
       if (board.isValid(x, y) && !board.occupied(x, y)) {
         casetrouvee = true;
-        IO.println("IA a choisis: " + x + ", " + y);
+        IO.println(Main.VERT + "IA a choisis: " + x + ", " + y + Main.RESET);
         placePion(false, x, y);
       }
     }
@@ -70,19 +70,35 @@ public class App {
   }
 
   public void playerPlays() {
-    Integer player;
-    if (this.turn)
-      player = 1;
-    else {
-      player = 2;
+    int player = this.turn ? 1 : 2;
+    int x = -1;
+    int y = -1;
+    boolean saisieValide = false;
+
+    while (!saisieValide) {
+      try {
+        // 1. Lecture et conversion
+        x = Integer.parseInt(IO.readln("Joueur " + player + " x (0-" + (board.mapSize - 1) + "): "));
+        y = Integer.parseInt(IO.readln("Joueur " + player + " y (0-" + (board.mapSize - 1) + "): "));
+
+        if (board.isValid(x, y)) {
+          saisieValide = true;
+        } else {
+          System.out
+              .println(Main.ROUGE + "Erreur : Coordonnées hors limites ou hors du plateau hexagonal !" + Main.RESET);
+        }
+
+      } catch (Exception e) {
+        // Si l'utilisateur tape des lettres au lieu de chiffres
+        System.out.println(Main.ROUGE + "Erreur : Veuillez entrer un nombre." + Main.RESET);
+      }
     }
 
-    // exemple d'input
-    // NE PAS OUBLIER: Enregistrer les inputs pour les placers dans le tableau.
-    Integer x = Integer.valueOf(IO.readln("Joueur " + player + " x: "));
-    Integer y = Integer.valueOf(IO.readln("Joueur " + player + " y: "));
-
+    // Une fois sorti de la boucle, on place le pion
     placePion(this.turn, x, y);
+
+    // N'oublie pas de mettre à jour l'état de la cellule dans ton objet board !
+    board.board[x][y].state = player;
   }
 
   public void placePion(Boolean turn, Integer x, Integer y) {
