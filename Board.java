@@ -109,7 +109,143 @@ public boolean verifierEtoile(int x, int y, int joueur) {
         return true;
     }
     return false;
+
+} 
+
+public void verifierStructures(int x, int y, int joueur) {
+    int avant = structures.size();
+    verifierTriangle(x, y, joueur);
+    verifierLigne(x, y, joueur);
+    verifierEtoile(x, y, joueur);
+
+    // on recupere uniquement les nouvelles structures de ce tour
+    ArrayList<Structure> nouvelles = new ArrayList<>();
+    for (int k = avant; k < structures.size(); k++) {
+        nouvelles.add(structures.get(k));
+    }
+
+    if (!nouvelles.isEmpty()) {
+        int points = gererDeclenchements(joueur, nouvelles);
+        if (points > 0) {
+            IO.println(Main.JAUNE + "Points gagnes ce tour : +" + points + Main.RESET);
+        }
+    }
 }
+
+public int gererDeclenchements(int joueur, ArrayList<Structure> nouvellesStructures) {
+    // cas 1 : plusieurs structures formees au meme tour
+    if (nouvellesStructures.size() >= 2) {
+        for (int i = 0; i < nouvellesStructures.size(); i++) {
+            if (!nouvellesStructures.get(i).declenchee) {
+                declencherChaine(nouvellesStructures.get(i), joueur);
+            }
+        }
+    }
+
+    // cas 2 : nouvelle structure reliee a une structure deja active
+    for (int i = 0; i < nouvellesStructures.size(); i++) {
+        Structure nouvelle = nouvellesStructures.get(i);
+        if (nouvelle.declenchee) continue;
+
+        for (int j = 0; j < structures.size(); j++) {
+            Structure existante = structures.get(j);
+            if (existante == nouvelle) continue;
+            if (existante.joueur != joueur) continue;
+            if (!existante.declenchee) continue; // doit etre deja declenchee
+
+            if (sontReliees(nouvelle, existante)) {
+                declencherChaine(nouvelle, joueur);
+                break;
+            }
+        }
+    }
+
+    // on comptabilise les points uniquement des nouvelles structures declenchees
+    int pointsGagnes = 0;
+    for (int i = 0; i < nouvellesStructures.size(); i++) {
+        Structure s = nouvellesStructures.get(i);
+        if (s.declenchee) {
+            pointsGagnes += revelerGemmes(s);
+        }
+    }
+    return pointsGagnes;
+}
+
+public int revelerGemmes(Structure s) {
+    int points = 0;
+
+    if (s.type.equals("triangle")) {
+        // une case adjacente choisie aleatoirement
+        int[] c = s.cases.get((int)(Math.random() * s.cases.size()));
+        points += prendrGemme(c[0], c[1]);
+
+    } else if (s.type.equals("ligne")) {
+        // toutes les cases adjacentes a la ligne
+        for (int i = 0; i < s.cases.size(); i++) {
+            int[][] voisins = getVoisins(s.cases.get(i)[0], s.cases.get(i)[1]);
+            for (int j = 0; j < voisins.length; j++) {
+                points += prendrGemme(voisins[j][0], voisins[j][1]);
+            }
+        }
+
+    } else if (s.type.equals("etoile")) {
+        // uniquement la case centrale (index 0)
+        int[] centre = s.cases.get(0);
+        points += prendrGemme(centre[0], centre[1]);
+    }
+
+    return points;
+}
+
+// prend la gemme d'une case et retourne ses points
+public int prendrGemme(int x, int y) {
+    if (!isValid(x, y)) return 0;
+    Cell cell = board[x][y];
+    if (cell == null || cell.gem == 0) return 0;
+
+    int points = cell.gem; // 1 ou 2 selon la rarete
+    IO.println(Main.JAUNE + "Gemme revelee en (" + x + "," + y + ") → +" + points + " pts" + Main.RESET);
+    cell.gem = 0; // la gemme est prise
+    return points;
+}
+    /*
+     * Vérifie si deux structures sont "reliées" :
+     * elles partagent une case, ou deux de leurs cases sont voisines.
+     */
+    private boolean sontReliees(Structure s1, Structure s2) {
+        for (int[] c1 : s1.cases) {
+            for (int[] c2 : s2.cases) {
+                // Cases identiques
+                if (c1[0] == c2[0] && c1[1] == c2[1]) return true;
+                // Cases voisines
+                if (sontVoisines(c1[0], c1[1], c2[0], c2[1])) return true;
+            }
+        }
+        return false;
+    }
+ 
+    /*
+     * Réaction en chaîne : déclenche une structure,
+     * puis propage le déclenchement à toutes les structures reliées du même joueur
+     * qui ne sont pas encore déclenchées.
+     */
+    private void declencherChaine(Structure depart, int joueur) {
+        if (depart.declenchee) return; // déjà déclenchée, on arrête
+ 
+        depart.declenchee = true;
+        IO.println(Main.JAUNE + "Structure déclenchée : " + depart + Main.RESET);
+ 
+        // Propagation : on cherche toutes les structures reliées non encore déclenchées
+        for (Structure autre : structures) {
+            if (autre.joueur != joueur) continue;
+            if (autre.declenchee) continue;
+            if (autre == depart) continue;
+ 
+            if (sontReliees(depart, autre)) {
+                declencherChaine(autre, joueur); // appel récursif = réaction en chaîne
+            }
+        }
+    }
 
   boolean occupied(int x, int y) {
     return board[x][y].state != 0;

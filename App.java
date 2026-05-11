@@ -107,9 +107,11 @@ public class App {
       IO.println(Main.ROUGE + "Cette case est déjà prise par un joueur!" + Main.RESET);
       playerPlays();
     } else {
+      int joueur = turn ? 1 : 2;
       board.board[x][y].clicked(turn);
       // Affichage
       jeu.placePion(turn, x, y);
+      board.verifierStructures(x, y, joueur);
     }
 
   }
