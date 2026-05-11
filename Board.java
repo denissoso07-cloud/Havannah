@@ -84,7 +84,6 @@ public class Board {
     int q = x - center;
     int r = y - center;
 
-    // La condition magique pour l'hexagone :
     // On vérifie les 3 axes de coordonnées axiales
     return Math.abs(q) < size &&
         Math.abs(r) < size &&
