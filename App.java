@@ -60,10 +60,10 @@ public class App {
       Integer x = (int) (Math.random() * this.mapSize);
       Integer y = (int) (Math.random() * this.mapSize);
 
-      if (board.isValid(x, y)) {
+      if (board.isValid(x, y) && !board.occupied(x, y)) {
         casetrouvee = true;
         IO.println("IA a choisis: " + x + ", " + y);
-        affichePion(false, x, y);
+        placePion(false, x, y);
       }
     }
 
@@ -82,11 +82,19 @@ public class App {
     Integer x = Integer.valueOf(IO.readln("Joueur " + player + " x: "));
     Integer y = Integer.valueOf(IO.readln("Joueur " + player + " y: "));
 
-    affichePion(this.turn, x, y);
+    placePion(this.turn, x, y);
   }
 
-  public void affichePion(Boolean turn, Integer x, Integer y) {
-    // double[] c = jeu.getCoords(x, y);
-    jeu.placePion(turn, x, y);
+  public void placePion(Boolean turn, Integer x, Integer y) {
+    // Modifications
+    if (board.occupied(x, y)) {
+      IO.println(Main.ROUGE + "Cette case est déjà prise par un joueur!" + Main.RESET);
+      playerPlays();
+    } else {
+      board.board[x][y].clicked(turn);
+      // Affichage
+      jeu.placePion(turn, x, y);
+    }
+
   }
 }

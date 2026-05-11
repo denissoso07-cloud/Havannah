@@ -69,7 +69,7 @@ public class Board {
   }
 
   boolean occupied(int x, int y) {
-    return board[x][y] != null;
+    return board[x][y].state != 0;
   }
 
   boolean isValid(int x, int y) {
@@ -80,7 +80,7 @@ public class Board {
     }
 
     // 2. Géométrie : Formule de l'hexagone centrée
-    int center = size - 1; // ex: 4 pour size 5
+    int center = size - 1;
     int q = x - center;
     int r = y - center;
 
@@ -103,8 +103,6 @@ public class Board {
       if (isValid(x, y) && this.board[x][y] != null && isNotGem(x, y)) {
         gemNumber++;
         this.board[x][y].setGem((int) (Math.random() * 2) + 1);
-      } else {
-        IO.println("tentative echoue sur: " + x + ", " + y);
       }
     }
   }
