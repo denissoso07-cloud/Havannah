@@ -127,27 +127,18 @@ public void verifierStructures(int x, int y, int joueur) {
 }
 
 public int gererDeclenchements(int joueur, ArrayList<Structure> nouvellesStructures) {
-    // cas 1 : plusieurs structures formees au meme tour
+    // CONDITION A : Plusieurs structures ce tour-ci -> On déclenche tout le groupe
     if (nouvellesStructures.size() >= 2) {
-        for (int i = 0; i < nouvellesStructures.size(); i++) {
-            if (!nouvellesStructures.get(i).declenchee) {
-                declencherChaine(nouvellesStructures.get(i), joueur);
-            }
+        for (Structure s : nouvellesStructures) {
+            declencherChaine(s, joueur);
         }
-    }
-
-    // cas 2 : nouvelle structure reliee a une structure deja active
-    for (int i = 0; i < nouvellesStructures.size(); i++) {
-        Structure nouvelle = nouvellesStructures.get(i);
-        if (nouvelle.declenchee) continue;
-
-        for (int j = 0; j < structures.size(); j++) {
-            Structure existante = structures.get(j);
-            if (existante == nouvelle) continue;
-            if (existante.joueur != joueur) continue;
-            if (!existante.declenchee) continue; // doit etre deja declenchee
-
-            if (sontReliees(nouvelle, existante)) {
+    } 
+    // CONDITION B : Une seule structure ce tour -> On regarde si elle touche une ANCIENNE structure active
+    else if (nouvellesStructures.size() == 1) {
+        Structure nouvelle = nouvellesStructures.get(0);
+        for (Structure existante : structures) {
+            if (existante != nouvelle && existante.joueur == joueur && sontReliees(nouvelle, existante)) {
+                // Si l'existante est active, la nouvelle se déclenche et propage
                 declencherChaine(nouvelle, joueur);
                 break;
             }
