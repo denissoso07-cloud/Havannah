@@ -5,12 +5,14 @@ public class App {
   Boolean end = false;
   Boolean turn = true; // True: joueur 1, False: joueur 2
   Integer size;
+  Integer mapSize;
   Board board;
   Echequier jeu = new Echequier();
 
   App(String name, Integer size) {
     this.name = name;
     this.size = size;
+    this.mapSize = 2 * size - 1;
     this.board = new Board(size);
 
     // on dessine les hexagones
@@ -22,9 +24,9 @@ public class App {
     // etape 5 : on les affiche sur le plateau graphique
     jeu.afficherGems(gems);
 
-    jeu.placePion(true, 0, 0);
+    // jeu.placePion(true, 0, 0);
 
-    jeu.placePion(false, 2, 3);
+    // jeu.placePion(false, 2, 3);
   }
 
   public void launch() {
@@ -55,8 +57,8 @@ public class App {
   public void IAPlays() {
     Boolean casetrouvee = false;
     while (!casetrouvee) {
-      Integer x = (int) (Math.random() * this.size);
-      Integer y = (int) (Math.random() * this.size);
+      Integer x = (int) (Math.random() * this.mapSize);
+      Integer y = (int) (Math.random() * this.mapSize);
 
       if (board.isValid(x, y)) {
         casetrouvee = true;

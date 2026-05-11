@@ -68,12 +68,27 @@ public class Board {
     return false;
   }
 
+  boolean occupied(int x, int y) {
+    return board[x][y] != null;
+  }
+
   boolean isValid(int x, int y) {
-    int center = size - 1;
-    // On vérifie la distance par rapport au centre sur les 3 axes
-    return Math.abs(x - center) < size &&
-        Math.abs(y - center) < size &&
-        Math.abs((x - center) - (y - center)) < size;
+    // 1. Sécurité : Vérifier que x et y ne sont pas hors du tableau
+    // (IndexOutOfBounds)
+    if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) {
+      return false;
+    }
+
+    // 2. Géométrie : Formule de l'hexagone centrée
+    int center = size - 1; // ex: 4 pour size 5
+    int q = x - center;
+    int r = y - center;
+
+    // La condition magique pour l'hexagone :
+    // On vérifie les 3 axes de coordonnées axiales
+    return Math.abs(q) < size &&
+        Math.abs(r) < size &&
+        Math.abs(q - r) < size;
   }
 
   public void addGems() {
@@ -81,13 +96,15 @@ public class Board {
     int x;
     int y;
     while (gemNumber < 10) {
-      x = (int) (Math.random() * (size + 1));
-      y = (int) (Math.random() * (size + 1));
+      x = (int) (Math.random() * mapSize);
+      y = (int) (Math.random() * mapSize);
 
       // Accès direct avec le tableau [x][y]
       if (isValid(x, y) && this.board[x][y] != null && isNotGem(x, y)) {
         gemNumber++;
         this.board[x][y].setGem((int) (Math.random() * 2) + 1);
+      } else {
+        IO.println("tentative echoue sur: " + x + ", " + y);
       }
     }
   }
@@ -95,8 +112,8 @@ public class Board {
   public ArrayList<Cell> getGems() {
     ArrayList<Cell> gems = new ArrayList<>();
     // Double boucle pour parcourir le tableau 2D
-    for (int x = 0; x <= size; x++) {
-      for (int y = 0; y <= size; y++) {
+    for (int x = 0; x < mapSize; x++) {
+      for (int y = 0; y < mapSize; y++) {
         Cell cell = board[x][y];
         if (cell != null && cell.gem != 0) {
           gems.add(cell);
