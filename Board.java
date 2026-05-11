@@ -239,6 +239,16 @@ public int prendrGemme(int x, int y) {
         return getGems().isEmpty();
     }
 
+    public boolean estPlein() {
+        for (int x = 0; x < mapSize; x++) {
+            for (int y = 0; y < mapSize; y++) {
+                if (isValid(x, y) && board[x][y].state == 0) {
+                    return false; // Il reste au moins une case vide
+                }
+            }
+        }
+        return true; // Toutes les cases valides sont occupées
+    }
   boolean occupied(int x, int y) {
     return board[x][y].state != 0;
   }

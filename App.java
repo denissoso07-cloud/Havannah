@@ -154,11 +154,22 @@ public class App {
         IO.println("Score → Joueur 1 : " + pointsJoueur1
             + "  |  Joueur 2 : " + pointsJoueur2);
  
-        // 7. Condition de fin : toutes les gemmes récoltées
+        // Condition de fin : toutes les gemmes récoltées / plateau plein
         if (board.toutesGemmesRecoltees()) {
             IO.println(Main.VIOLET + "Toutes les gemmes ont été récoltées !" + Main.RESET);
             end = true;
-        }
+        } else if (board.estPlein()) {
+        IO.println(Main.ROUGE + "Le plateau est plein ! Fin de la partie." + Main.RESET);
+        
+        // On affiche toutes les gemmes restantes sur l'interface graphique
+        IO.println(Main.JAUNE + "Révélation des gemmes non récoltées..." + Main.RESET);
+        jeu.afficherGems(board.getGems()); 
+        
+        end = true;
+    }
+      if (end == true) {
+        afficherResultat();
+    }
     }
 
       public void afficherResultat() {
