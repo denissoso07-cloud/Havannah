@@ -41,11 +41,18 @@ public class Echequier {
         double cx = coord[0];
         double cy = coord[1];
 
-        Ellipse pion = new Ellipse(cx - (radius / 2), cy - (radius / 2), radius, radius);
-        if (turn) {
-            pion.setColor(Color.BLACK);
-            pion.fill();
-        } else {
+        // On définit les couleurs pour chaque joueur
+        Color couleurJoueur = turn ? Color.BLUE : Color.RED;
+
+        // Pour simuler une épaisseur de contour, on dessine 3 ellipses
+        // légèrement décalées ou de tailles différentes.
+        for (double i = 0; i < 1.5; i += 0.5) {
+            // On réduit légèrement la taille à chaque itération pour "remplir" le trait
+            double currentSize = radius - i;
+            double offset = currentSize / 2;
+
+            Ellipse pion = new Ellipse(cx - offset, cy - offset, currentSize, currentSize);
+            pion.setColor(couleurJoueur);
             pion.draw();
         }
     }

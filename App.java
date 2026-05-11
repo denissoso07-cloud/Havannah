@@ -23,10 +23,6 @@ public class App {
 
     // etape 5 : on les affiche sur le plateau graphique
     jeu.afficherGems(gems);
-
-    // jeu.placePion(true, 0, 0);
-
-    // jeu.placePion(false, 2, 3);
   }
 
   public void launch() {
