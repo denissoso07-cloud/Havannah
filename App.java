@@ -145,8 +145,8 @@ public class App {
             if (points > 0) {
                 IO.println(Main.VERT + "Joueur " + joueur
                     + " gagne " + points + " point(s) !" + Main.RESET);
-                if (joueur == 1) pointsJoueur1 += points;
-                else             pointsJoueur2 += points;
+                if (joueur == 1) {pointsJoueur1 += points;}
+                else             {pointsJoueur2 += points;};
             }
         }
  

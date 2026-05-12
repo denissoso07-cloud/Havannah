@@ -143,37 +143,67 @@ public void verifierStructures(int x, int y, int joueur) {
     verifierEtoile(x, y, joueur);
 }
 
-public int gererDeclenchements(int joueur, ArrayList<Structure> nouvellesStructures) {
-    // CONDITION A : Plusieurs structures ce tour-ci -> On déclenche tout le groupe
-    if (nouvellesStructures.size() >= 2) {
-        for (Structure s : nouvellesStructures) {
-            declencherChaine(s, joueur);
-        }
-    } 
-    // CONDITION B : Une seule structure ce tour -> On regarde si elle touche une ANCIENNE structure active
-    else if (nouvellesStructures.size() == 1) {
-        Structure nouvelle = nouvellesStructures.get(0);
-        for (Structure existante : structures) {
-            if (existante != nouvelle && existante.joueur == joueur && sontReliees(nouvelle, existante)) {
-                // Si l'existante est active, la nouvelle se déclenche et propage
-                declencherChaine(nouvelle, joueur);
-                break;
+      /*
+     * Vérifie si deux structures sont "reliées" :
+     * elles partagent une case, ou deux de leurs cases sont voisines.
+     */
+    private boolean sontReliees(Structure s1, Structure s2) {
+        for (int[] c1 : s1.cases) {
+            for (int[] c2 : s2.cases) {
+                // Cases identiques
+                if (c1[0] == c2[0] && c1[1] == c2[1]) return true;
+                // Cases voisines
+                if (sontVoisines(c1[0], c1[1], c2[0], c2[1])) return true;
             }
         }
+        return false;
+    }
+ 
+    /*
+     * Réaction en chaîne : déclenche une structure,
+     * puis propage le déclenchement à toutes les structures reliées du même joueur
+     * qui ne sont pas encore déclenchées.
+     */
+    public void declencherChaine(Structure depart, int joueur) {
+        if (depart.declenchee == true) {
+          return; 
+        } // déjà déclenchée, on arrête
+ 
+        depart.declenchee = true;
+        IO.println(Main.JAUNE + "Structure déclenchée : " + depart + Main.RESET);
+ 
+        // Propagation : on cherche toutes les structures reliées non encore déclenchées
+       for (int i = 0; i < structures.size(); i++) {
+        Structure autre = structures.get(i);
+        if (autre.joueur == joueur) {
+            if (autre.declenchee == false) {
+                if (autre != depart) {
+                    if (sontReliees(depart, autre) == true) {  
+                        // Si toutes les conditions sont vraies, on lance la réaction en chaîne
+                        declencherChaine(autre, joueur);   
+                    }
+                }
+            }
+        }
+      }
     }
 
-    // on comptabilise les points uniquement des nouvelles structures declenchees
-    int pointsGagnes = 0;
-    for (int i = 0; i < nouvellesStructures.size(); i++) {
-        Structure s = nouvellesStructures.get(i);
-        if (s.declenchee) {
-            pointsGagnes += revelerGemmes(s);
-        }
-    }
-    return pointsGagnes;
+    // prend la gemme d'une case et retourne ses points
+public int prendrGemme(int x, int y) {
+    if (!isValid(x, y)) return 0;
+    Cell cell = board[x][y];
+    if (cell == null || cell.gem == 0) return 0;
+
+    int points = cell.gem; // 1 ou 2 selon la rarete
+    IO.println(Main.JAUNE + "Gemme revelee en (" + x + "," + y + ") -> +" + points + " pts" + Main.RESET);
+
+    jeu.dessinerGem(x, y, points);
+
+    cell.gem = 0; // la gemme est prise
+    return points;
 }
 
-public int revelerGemmes(Structure s) {
+    public int revelerGemmes(Structure s) {
     int points = 0;
 
     if (s.type.equals("triangle")) {
@@ -199,58 +229,40 @@ public int revelerGemmes(Structure s) {
     return points;
 }
 
-// prend la gemme d'une case et retourne ses points
-public int prendrGemme(int x, int y) {
-    if (!isValid(x, y)) return 0;
-    Cell cell = board[x][y];
-    if (cell == null || cell.gem == 0) return 0;
+public int gererDeclenchements(int joueur, ArrayList<Structure> nouvellesStructures) {
+    // CONDITION A : Plusieurs structures ce tour-ci -> On déclenche tout le groupe
+    if (nouvellesStructures.size() >= 2) {
+       for (int i = 0; i < nouvellesStructures.size(); i++) {
+            Structure s = nouvellesStructures.get(i);
+            declencherChaine(s, joueur);
+        }
+    } 
+    // CONDITION B : Une seule structure ce tour -> On regarde si elle touche une ANCIENNE structure active
+    else if (nouvellesStructures.size() == 1) {
+        Structure nouvelle = nouvellesStructures.get(0);
+        
+        for (int j = 0; j < structures.size(); j++) {
+            Structure ancienne = structures.get(j);
+            
+            if (ancienne.joueur == joueur) {
+                if (sontReliees(nouvelle, ancienne) == true) {
+                    // Si ça touche, on allume la nouvelle (et ses voisines)
+                    declencherChaine(nouvelle, joueur);
+                }
+            }
+        }
+    }
 
-    int points = cell.gem; // 1 ou 2 selon la rarete
-    IO.println(Main.JAUNE + "Gemme revelee en (" + x + "," + y + ") → +" + points + " pts" + Main.RESET);
-
-    jeu.dessinerGem(x, y, points);
-
-    cell.gem = 0; // la gemme est prise
-    return points;
+    // on comptabilise les points uniquement des nouvelles structures declenchees
+    int pointsGagnes = 0;
+    for (int i = 0; i < nouvellesStructures.size(); i++) {
+        Structure s = nouvellesStructures.get(i);
+        if (s.declenchee) {
+            pointsGagnes += revelerGemmes(s);
+        }
+    }
+    return pointsGagnes;
 }
-    /*
-     * Vérifie si deux structures sont "reliées" :
-     * elles partagent une case, ou deux de leurs cases sont voisines.
-     */
-    private boolean sontReliees(Structure s1, Structure s2) {
-        for (int[] c1 : s1.cases) {
-            for (int[] c2 : s2.cases) {
-                // Cases identiques
-                if (c1[0] == c2[0] && c1[1] == c2[1]) return true;
-                // Cases voisines
-                if (sontVoisines(c1[0], c1[1], c2[0], c2[1])) return true;
-            }
-        }
-        return false;
-    }
- 
-    /*
-     * Réaction en chaîne : déclenche une structure,
-     * puis propage le déclenchement à toutes les structures reliées du même joueur
-     * qui ne sont pas encore déclenchées.
-     */
-    private void declencherChaine(Structure depart, int joueur) {
-        if (depart.declenchee) return; // déjà déclenchée, on arrête
- 
-        depart.declenchee = true;
-        IO.println(Main.JAUNE + "Structure déclenchée : " + depart + Main.RESET);
- 
-        // Propagation : on cherche toutes les structures reliées non encore déclenchées
-        for (Structure autre : structures) {
-            if (autre.joueur != joueur) continue;
-            if (autre.declenchee) continue;
-            if (autre == depart) continue;
- 
-            if (sontReliees(depart, autre)) {
-                declencherChaine(autre, joueur); // appel récursif = réaction en chaîne
-            }
-        }
-    }
 
     public boolean toutesGemmesRecoltees() {
         return getGems().isEmpty();
