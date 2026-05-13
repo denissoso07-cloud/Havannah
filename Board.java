@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Board {
-  Cell[][] board;   // Un tableau 2D au lieu de la HashMap
+  Cell[][] board; // Un tableau 2D au lieu de la HashMap
   int size; // Le nombre d'hexagones sur un côté (ex: 5)
   int mapSize;// La dimension du tableau (2 * size - 1)
   ArrayList<Structure> structures = new ArrayList<>(); // liste des structures actives
@@ -9,45 +9,48 @@ public class Board {
 
   Board(int size, Echequier jeu) {
     this.size = size;
-    this.mapSize = 2 * size - 1;  // Pour size 5, mapSize = 9
+    this.mapSize = 2 * size - 1; // Pour size 5, mapSize = 9
     this.board = new Cell[mapSize][mapSize];
     this.jeu = jeu;
     for (int x = 0; x < mapSize; x++) {
       for (int y = 0; y < mapSize; y++) {
-        if (isValid(x, y)) { this.board[x][y] = new Cell(x, y); }
+        if (isValid(x, y)) {
+          this.board[x][y] = new Cell(x, y);
+        }
       }
     }
     addGems();
   }
 
-
   /*
    * Retourne les 6 voisins d'une case hexagonale.
    * Ces directions correspondent à getCoords() dans Echequier :
-   *   cx = startX + x * 1.5 * radius
-   *   cy = startY + y * sqrt(3)*radius - x * sqrt(3)*radius/2
+   * cx = startX + x * 1.5 * radius
+   * cy = startY + y * sqrt(3)*radius - x * sqrt(3)*radius/2
    * Les 6 voisins adjacents sont ceux à distance sqrt(3)*radius.
    */
   public int[][] getVoisins(int x, int y) {
     return new int[][] {
-        { x + 1, y },     // droite-haut
-        { x - 1, y },     // gauche-bas
-        { x, y + 1 },     // bas
-        { x, y - 1 },     // haut
+        { x + 1, y }, // droite-haut
+        { x - 1, y }, // gauche-bas
+        { x, y + 1 }, // bas
+        { x, y - 1 }, // haut
         { x + 1, y + 1 }, // diagonale bas-droite
-        { x - 1, y - 1 }  // diagonale haut-gauche
+        { x - 1, y - 1 } // diagonale haut-gauche
     };
   }
 
-  // Vérifie si deux cases sont voisines
+  /**
+   * Vérifie si deux cases données sont physiquement adjacentes sur le plateau.
+   */
   public boolean sontVoisines(int x1, int y1, int x2, int y2) {
     int[][] voisins = getVoisins(x1, y1);
     for (int i = 0; i < voisins.length; i++) {
-      if (voisins[i][0] == x2 && voisins[i][1] == y2) return true;
+      if (voisins[i][0] == x2 && voisins[i][1] == y2)
+        return true;
     }
     return false;
   }
-
 
   /*
    * Crée la structure triangle si vi et vj sont voisins entre eux.
@@ -56,7 +59,7 @@ public class Board {
   public boolean formerTriangle(int x, int y, int[] vi, int[] vj, int joueur) {
     if (sontVoisines(vi[0], vi[1], vj[0], vj[1])) {
       ArrayList<int[]> cases = new ArrayList<>();
-      cases.add(new int[]{ x, y });
+      cases.add(new int[] { x, y });
       cases.add(vi);
       cases.add(vj);
       structures.add(new Structure("triangle", joueur, cases));
@@ -80,7 +83,8 @@ public class Board {
             if (isValid(voisins[j][0], voisins[j][1])) {
               Cell v2 = board[voisins[j][0]][voisins[j][1]];
               if (v2 != null && v2.state == joueur) {// vérifie si v2 est un voisin
-                if (formerTriangle(x, y, voisins[i], voisins[j], joueur)) return true;
+                if (formerTriangle(x, y, voisins[i], voisins[j], joueur))
+                  return true;
               }
             }
           }
@@ -89,7 +93,6 @@ public class Board {
     }
     return false;
   }
-
 
   /*
    * Cherche des cases alignées dans une direction (dx, dy).
@@ -102,22 +105,26 @@ public class Board {
       if (isValid(nx, ny)) {
         Cell c = board[nx][ny];
         if (c != null && c.state == joueur) {
-          liste.add(new int[]{ nx, ny });
-        } else { break; }
-      } else { break; }
+          liste.add(new int[] { nx, ny });
+        } else {
+          break;
+        }
+      } else {
+        break;
+      }
     }
   }
 
   /*
    * LIGNE : 5 cases alignées du même joueur sur un des 3 axes :
-   *   Axe 1 : Vertical   (0,+1) <-> (0,-1)
-   *   Axe 2 : Horizontal (+1,0) <-> (-1,0)
-   *   Axe 3 : Diagonale  (+1,+1) <-> (-1,-1)
+   * Axe 1 : Vertical (0,+1) <-> (0,-1)
+   * Axe 2 : Horizontal (+1,0) <-> (-1,0)
+   * Axe 3 : Diagonale (+1,+1) <-> (-1,-1)
    */
   public boolean verifierLigne(int x, int y, int joueur) {
     // Axe 1 : Vertical
     ArrayList<int[]> ligneV = new ArrayList<>();
-    ligneV.add(new int[]{ x, y });
+    ligneV.add(new int[] { x, y });
     chercherDansDirection(ligneV, x, y, 0, 1, joueur);
     chercherDansDirection(ligneV, x, y, 0, -1, joueur);
     if (ligneV.size() >= 5) {
@@ -127,7 +134,7 @@ public class Board {
     }
     // Axe 2 : Horizontal
     ArrayList<int[]> ligneH = new ArrayList<>();
-    ligneH.add(new int[]{ x, y });
+    ligneH.add(new int[] { x, y });
     chercherDansDirection(ligneH, x, y, 1, 0, joueur);
     chercherDansDirection(ligneH, x, y, -1, 0, joueur);
     if (ligneH.size() >= 5) {
@@ -137,7 +144,7 @@ public class Board {
     }
     // Axe 3 : Diagonale bas-droite <-> haut-gauche
     ArrayList<int[]> ligneD = new ArrayList<>();
-    ligneD.add(new int[]{ x, y });
+    ligneD.add(new int[] { x, y });
     chercherDansDirection(ligneD, x, y, 1, 1, joueur);
     chercherDansDirection(ligneD, x, y, -1, -1, joueur);
     if (ligneD.size() >= 5) {
@@ -148,11 +155,9 @@ public class Board {
     return false;
   }
 
-
-  /*
-   * Vérifie si (cx, cy) est le centre d'une étoile :
-   * les 6 voisins de (cx, cy) appartiennent tous au joueur.
-   * Note : (cx, cy) lui-même n'a pas besoin d'appartenir au joueur.
+  /**
+   * Définit les coordonnées des 6 cases adjacentes dans une grille hexagonale
+   * basée sur le système de coordonnées utilisé par l'Echequier.
    */
   public boolean estCentreEtoile(int cx, int cy, int joueur) {
     int[][] voisins = getVoisins(cx, cy);
@@ -160,7 +165,8 @@ public class Board {
     for (int i = 0; i < voisins.length; i++) {
       if (isValid(voisins[i][0], voisins[i][1])) {
         Cell c = board[voisins[i][0]][voisins[i][1]];
-        if (c != null && c.state == joueur) count++;
+        if (c != null && c.state == joueur)
+          count++;
       }
     }
     return count == 6;
@@ -173,9 +179,11 @@ public class Board {
   public boolean formerEtoile(int cx, int cy, int joueur) {
     if (isValid(cx, cy) && estCentreEtoile(cx, cy, joueur)) {
       ArrayList<int[]> cases = new ArrayList<>();
-      cases.add(new int[]{ cx, cy }); // centre (index 0)
+      cases.add(new int[] { cx, cy }); // centre (index 0)
       int[][] v = getVoisins(cx, cy);
-      for (int j = 0; j < v.length; j++) { cases.add(v[j]); }
+      for (int j = 0; j < v.length; j++) {
+        cases.add(v[j]);
+      }
       structures.add(new Structure("etoile", joueur, cases));
       IO.println(Main.VERT + "Étoile formée autour de (" + cx + "," + cy + ") !" + Main.RESET);
       return true;
@@ -191,7 +199,8 @@ public class Board {
   public boolean verifierEtoile(int x, int y, int joueur) {
     int[][] voisins = getVoisins(x, y);
     for (int i = 0; i < voisins.length; i++) {
-      if (formerEtoile(voisins[i][0], voisins[i][1], joueur)) return true;
+      if (formerEtoile(voisins[i][0], voisins[i][1], joueur))
+        return true;
     }
     return false;
   }
@@ -216,8 +225,10 @@ public class Board {
       for (int j = 0; j < s2.cases.size(); j++) {
         int[] c1 = s1.cases.get(i);
         int[] c2 = s2.cases.get(j);
-        if (c1[0] == c2[0] && c1[1] == c2[1]) return true;
-        if (sontVoisines(c1[0], c1[1], c2[0], c2[1])) return true;
+        if (c1[0] == c2[0] && c1[1] == c2[1])
+          return true;
+        if (sontVoisines(c1[0], c1[1], c2[0], c2[1]))
+          return true;
       }
     }
     return false;
@@ -274,20 +285,22 @@ public class Board {
 
   /*
    * Retourne les cases à révéler pour une structure déclenchée (règle 11) :
-   *   triangle -> case adjacente aléatoire
-   *   ligne    -> toutes les cases adjacentes à la ligne
-   *   étoile   -> la case centrale (index 0)
+   * triangle -> case adjacente aléatoire
+   * ligne -> toutes les cases adjacentes à la ligne
+   * étoile -> la case centrale (index 0)
    */
   public ArrayList<int[]> getCasesRevelees(Structure s) {
     ArrayList<int[]> cases = new ArrayList<>();
     if (s.type.equals("triangle")) {
-      cases.add(s.cases.get((int)(Math.random() * s.cases.size())));
+      cases.add(s.cases.get((int) (Math.random() * s.cases.size())));
     } else if (s.type.equals("etoile")) {
       cases.add(s.cases.get(0)); // index 0 = centre
     } else if (s.type.equals("ligne")) {
       for (int i = 0; i < s.cases.size(); i++) {
         int[][] voisins = getVoisins(s.cases.get(i)[0], s.cases.get(i)[1]);
-        for (int j = 0; j < voisins.length; j++) { cases.add(voisins[j]); }
+        for (int j = 0; j < voisins.length; j++) {
+          cases.add(voisins[j]);
+        }
       }
     }
     return cases;
@@ -302,7 +315,9 @@ public class Board {
     for (int i = 0; i < nouvelles.size(); i++) {
       if (nouvelles.get(i).declenchee) {
         ArrayList<int[]> cases = getCasesRevelees(nouvelles.get(i));
-        for (int j = 0; j < cases.size(); j++) { toutes.add(cases.get(j)); }
+        for (int j = 0; j < cases.size(); j++) {
+          toutes.add(cases.get(j));
+        }
       }
     }
     return toutes;
@@ -315,7 +330,8 @@ public class Board {
   public int compterOccurrences(ArrayList<int[]> liste, int x, int y) {
     int count = 0;
     for (int i = 0; i < liste.size(); i++) {
-      if (liste.get(i)[0] == x && liste.get(i)[1] == y) count++;
+      if (liste.get(i)[0] == x && liste.get(i)[1] == y)
+        count++;
     }
     return count;
   }
@@ -333,7 +349,8 @@ public class Board {
       if (isValid(x, y) && board[x][y] != null && board[x][y].gem != 0) {
         int nbFois = compterOccurrences(casesRevelees, x, y);
         int points = board[x][y].gem * nbFois;
-        IO.println(Main.JAUNE + "Gemme (" + x + "," + y + ") révélée " + nbFois + "x → +" + points + " pts" + Main.RESET);
+        IO.println(
+            Main.JAUNE + "Gemme (" + x + "," + y + ") révélée " + nbFois + "x → +" + points + " pts" + Main.RESET);
         jeu.dessinerGem(x, y, board[x][y].gem);
         board[x][y].gem = 0; // la gemme est prise
         total += points;
@@ -353,7 +370,8 @@ public class Board {
   public boolean estPlein() {
     for (int x = 0; x < mapSize; x++) {
       for (int y = 0; y < mapSize; y++) {
-        if (isValid(x, y) && board[x][y].state == 0) return false;
+        if (isValid(x, y) && board[x][y].state == 0)
+          return false;
       }
     }
     return true;
@@ -363,10 +381,13 @@ public class Board {
   // UTILITAIRES
   // ══════════════════════════════════════
 
-  boolean occupied(int x, int y) { return board[x][y].state != 0; }
+  boolean occupied(int x, int y) {
+    return board[x][y].state != 0;
+  }
 
   boolean isValid(int x, int y) {
-    if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) return false;
+    if (x < 0 || x >= mapSize || y < 0 || y >= mapSize)
+      return false;
     int center = size - 1;
     int q = x - center;
     int r = y - center;
@@ -376,27 +397,45 @@ public class Board {
   public void addGems() {
     int gemNumber = 0;
     while (gemNumber < 10) {
-      int x = (int)(Math.random() * mapSize);
-      int y = (int)(Math.random() * mapSize);
+      int x = (int) (Math.random() * mapSize);
+      int y = (int) (Math.random() * mapSize);
       if (isValid(x, y) && board[x][y] != null && isNotGem(x, y)) {
-        board[x][y].setGem((int)(Math.random() * 2) + 1);
+        board[x][y].setGem((int) (Math.random() * 2) + 1);
         gemNumber++;
       }
     }
   }
 
+  /**
+   * Parcourt l'intégralité du tableau 2D pour identifier les cellules contenant
+   * une gemme.
+   * 
+   * @return Une liste d'objets Cell contenant toutes les gemmes encore présentes
+   *         sur le plateau.
+   */
   public ArrayList<Cell> getGems() {
     ArrayList<Cell> gems = new ArrayList<>();
     for (int x = 0; x < mapSize; x++) {
       for (int y = 0; y < mapSize; y++) {
-        if (board[x][y] != null && board[x][y].gem != 0) gems.add(board[x][y]);
+        if (board[x][y] != null && board[x][y].gem != 0)
+          gems.add(board[x][y]);
       }
     }
     return gems;
   }
 
-  boolean isNotGem(int x, int y) { return board[x][y].gem == 0; }
+  /**
+   * Vérifie si une cellule spécifique (x, y) est dépourvue de gemme.
+   * 
+   * @return true si la case ne contient aucune gemme (valeur 0), false sinon.
+   */
+  boolean isNotGem(int x, int y) {
+    return board[x][y].gem == 0;
+  }
 
+  /**
+   * Affiche le nom de la partie ou du plateau dans la console.
+   */
   public void show(String name) {
     System.out.println(Main.VIOLET + name + ":" + Main.RESET);
   }
