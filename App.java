@@ -1,4 +1,11 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class App {
   String name;
@@ -36,6 +43,13 @@ public class App {
    * jusqu'à ce que la condition 'end' soit vraie.
    */
   public void launch() {
+    String rep = IO.readln("Reprendre l'ancienne partie ? (o/n) : ");
+    if (rep.equals("o")) {
+      if (!loadGame("sauvegarde.txt")) {
+        IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
+      }
+    }
+    saveGame("sauvegarde.txt");
     // Demande si le joueur joue contre IA ou joueur
     String type = IO.readln("Jouer contre IA (o/n): ");
 
@@ -51,13 +65,88 @@ public class App {
       // CONTRE JOUEUR
       IO.println("Joueur contre Joueur");
 
-      board.show(name);
       while (!end) {
         playerPlays();
         // switch le tour du joueur
         this.turn = !this.turn;
       }
       afficherResultat();
+    }
+    // FIN
+
+    // Si la partie se termine -> on supprime le contenu du fichier de sauvegarde
+    // --
+  }
+
+  public void supprimerSauvegarde(String filename) {
+    try {
+      // On convertit le nom du fichier en "Path" et on supprime
+      Files.deleteIfExists(Paths.get(filename));
+      IO.println("Fichier de sauvegarde nettoyé.");
+    } catch (Exception e) {
+      // On ne bloque pas le jeu si la suppression échoue (ex: fichier ouvert
+      // ailleurs)
+      IO.println("Note : Impossible de supprimer le fichier de sauvegarde.");
+    }
+  }
+
+  public void saveGame(String filename) {
+    try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
+      // On sauvegarde d'abord les infos globales
+      writer.println(pointsJoueur1 + " " + pointsJoueur2 + " " + (turn ? "1" : "2"));
+
+      // On parcourt le plateau
+      for (int x = 0; x < mapSize; x++) {
+        for (int y = 0; y < mapSize; y++) {
+          if (board.isValid(x, y)) {
+            Cell c = board.board[x][y];
+            // On enregistre : x y state gem
+            writer.println(x + " " + y + " " + c.state + " " + c.gem);
+          }
+        }
+      }
+      IO.println("Partie sauvegardée dans " + filename);
+    } catch (IOException e) {
+      IO.println("Erreur lors de la sauvegarde : " + e.getMessage());
+    }
+  }
+
+  public boolean loadGame(String filename) {
+    File file = new File(filename);
+    if (!file.exists())
+      return false;
+
+    try (Scanner scanner = new Scanner(file)) {
+      if (!scanner.hasNext())
+        return false;
+
+      // 1. Charger les scores et le tour
+      this.pointsJoueur1 = scanner.nextInt();
+      this.pointsJoueur2 = scanner.nextInt();
+      this.turn = (scanner.nextInt() == 1);
+
+      // 2. Charger les cellules
+      while (scanner.hasNextInt()) {
+        int x = scanner.nextInt();
+        int y = scanner.nextInt();
+        int state = scanner.nextInt();
+        int gem = scanner.nextInt();
+
+        if (board.isValid(x, y)) {
+          board.board[x][y].state = state;
+          board.board[x][y].gem = gem;
+
+          // Mettre à jour le visuel si un pion était là
+          if (state != 0) {
+            jeu.placePion(state == 1, x, y);
+          }
+        }
+      }
+      IO.println("Ancienne partie chargée !");
+      return true;
+    } catch (Exception e) {
+      IO.println("Erreur de lecture : " + e.getMessage());
+      return false;
     }
   }
 
@@ -190,6 +279,8 @@ public class App {
     IO.println("Score -> Joueur 1 : " + pointsJoueur1
         + "  |  Joueur 2 : " + pointsJoueur2);
 
+    // Sauvegarde a chaque coups, apres calculs des scores:
+    saveGame("sauvegarde.txt");
     // Condition de fin : toutes les gemmes récoltées / plateau plein
     if (board.toutesGemmesRecoltees()) {
       IO.println(Main.VIOLET + "Toutes les gemmes ont été récoltées !" + Main.RESET);
