@@ -44,11 +44,12 @@ public class App {
    */
   public void launch(String mode, boolean charger) {
     if (charger) {
+      // charge une sauvegarde si il en existe 
       if (!loadGame("sauvegarde.txt")) {
         IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
       }
     }
- 
+    // si le joueur choisis 2 ia est retourné et on joue contre une IA
     if (mode.equals("ia")) {
       IO.println("Joueur contre IA");
       while (!end) {
@@ -56,9 +57,11 @@ public class App {
         if (!end) IAPlays();
       }
     } else {
+       // sinon contre le joueur
       IO.println("Joueur contre Joueur");
       while (!end) {
         playerPlays();
+        //switch le tour du joueur
         if (!end) this.turn = !this.turn;
       }
     }
