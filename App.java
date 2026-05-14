@@ -44,32 +44,26 @@ public class App {
    * jusqu'à ce que la condition 'end' soit vraie.
    */
   public void launch(String mode, boolean charger) {
-    if (charger) {
-      // charge une sauvegarde si il en existe
-      if (!loadGame("sauvegarde.txt")) {
-        IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
-      }
+    // 1. Gestion du chargement
+    if (charger && !loadGame("sauvegarde.txt")) {
+      IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
     }
-    // si le joueur choisis 2 ia est retourné et on joue contre une IA
-    if (mode.equals("ia")) {
-      IO.println("Joueur contre IA");
-      while (!end) {
-        playerPlays();
-        if (!end)
+
+    IO.println("Mode : Joueur contre " + (mode.equals("ia") ? "IA" : "Joueur"));
+
+    while (!end) {
+      playerPlays();
+
+      if (!end) {
+        if (mode.equals("ia")) {
           IAPlays(lastMove);
-      }
-    } else {
-      // sinon contre le joueur
-      IO.println("Joueur contre Joueur");
-      while (!end) {
-        playerPlays();
-        // switch le tour du joueur
-        if (!end)
+        } else {
           this.turn = !this.turn;
+        }
       }
     }
-    // FIN
-    // Si la partie se termine -> on supprime le contenu du fichier de sauvegarde
+
+    // 3. Nettoyage final
     supprimerSauvegarde("sauvegarde.txt");
   }
 
@@ -150,7 +144,6 @@ public class App {
    * Choisit des coordonnées au hasard jusqu'à trouver une case valide et libre,
    * puis place son pion.
    */
-
   public void IAPlays(Cell cell) {
     ArrayList<int[]> casesValide = new ArrayList<int[]>();
     // recuperer les voisins valides
@@ -169,8 +162,15 @@ public class App {
       placePion(false, caseChoisie[0], caseChoisie[1]);
       return;
     }
-
     // Aucun voisins -> choix random
+    chooseRandom();
+  }
+
+  /*
+   * Choisis une case random
+   */
+  private void chooseRandom() {
+
     Boolean casetrouvee = false;
     while (!casetrouvee) {
       Integer x = (int) (Math.random() * this.mapSize);
@@ -279,6 +279,19 @@ public class App {
     }
 
     // Si au moins une nouvelle structure, on gère les déclenchements
+    nouvelleStructureDetectee(joueur, nouvelles);
+
+    // Affichage du score courant
+    IO.println("Score -> Joueur 1 : " + pointsJoueur1
+        + "  |  Joueur 2 : " + pointsJoueur2);
+
+    // Sauvegarde a chaque coups, apres calculs des scores:
+    saveGame("sauvegarde.txt");
+    // Condition de fin : toutes les gemmes récoltées / plateau plein
+    conditionDeFin();
+  }
+
+  private void nouvelleStructureDetectee(int joueur, ArrayList<Structure> nouvelles) {
     if (!nouvelles.isEmpty()) {
       int points = board.gererDeclenchements(joueur, nouvelles);
       if (points > 0) {
@@ -292,14 +305,9 @@ public class App {
         ;
       }
     }
+  }
 
-    // Affichage du score courant
-    IO.println("Score -> Joueur 1 : " + pointsJoueur1
-        + "  |  Joueur 2 : " + pointsJoueur2);
-
-    // Sauvegarde a chaque coups, apres calculs des scores:
-    saveGame("sauvegarde.txt");
-    // Condition de fin : toutes les gemmes récoltées / plateau plein
+  private void conditionDeFin() {
     if (board.toutesGemmesRecoltees()) {
       IO.println(Main.VIOLET + "Toutes les gemmes ont été récoltées !" + Main.RESET);
       end = true;
