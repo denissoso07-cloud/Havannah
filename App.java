@@ -42,40 +42,29 @@ public class App {
    * Propose le choix du mode (IA ou Humain) et gère l'alternance des tours
    * jusqu'à ce que la condition 'end' soit vraie.
    */
-  public void launch() {
-    String rep = IO.readln("Reprendre l'ancienne partie ? (o/n) : ");
-    if (rep.equals("o")) {
+  public void launch(String mode, boolean charger) {
+    if (charger) {
       if (!loadGame("sauvegarde.txt")) {
         IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
       }
     }
-    saveGame("sauvegarde.txt");
-    // Demande si le joueur joue contre IA ou joueur
-    String type = IO.readln("Jouer contre IA (o/n): ");
-
-    if (type.equals("o")) {
-      // CONTRE IA (random pour le moment)
+ 
+    if (mode.equals("ia")) {
       IO.println("Joueur contre IA");
       while (!end) {
         playerPlays();
-        IAPlays();
+        if (!end) IAPlays();
       }
-
     } else {
-      // CONTRE JOUEUR
       IO.println("Joueur contre Joueur");
-
       while (!end) {
         playerPlays();
-        // switch le tour du joueur
-        this.turn = !this.turn;
+        if (!end) this.turn = !this.turn;
       }
-      afficherResultat();
     }
     // FIN
-
     // Si la partie se termine -> on supprime le contenu du fichier de sauvegarde
-    // --
+    supprimerSauvegarde("sauvegarde.txt");
   }
 
   public void supprimerSauvegarde(String filename) {
