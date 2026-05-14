@@ -15,6 +15,7 @@ public class App {
   Integer mapSize;
   Board board;
   Echequier jeu = new Echequier();
+  Cell lastMove;
 
   // Score des deux joueurs
   int pointsJoueur1 = 0;
@@ -44,7 +45,7 @@ public class App {
    */
   public void launch(String mode, boolean charger) {
     if (charger) {
-      // charge une sauvegarde si il en existe 
+      // charge une sauvegarde si il en existe
       if (!loadGame("sauvegarde.txt")) {
         IO.println("Aucune sauvegarde valide trouvée. Nouvelle partie...");
       }
@@ -54,15 +55,17 @@ public class App {
       IO.println("Joueur contre IA");
       while (!end) {
         playerPlays();
-        if (!end) IAPlays();
+        if (!end)
+          IAPlays(lastMove);
       }
     } else {
-       // sinon contre le joueur
+      // sinon contre le joueur
       IO.println("Joueur contre Joueur");
       while (!end) {
         playerPlays();
-        //switch le tour du joueur
-        if (!end) this.turn = !this.turn;
+        // switch le tour du joueur
+        if (!end)
+          this.turn = !this.turn;
       }
     }
     // FIN
@@ -147,7 +150,27 @@ public class App {
    * Choisit des coordonnées au hasard jusqu'à trouver une case valide et libre,
    * puis place son pion.
    */
-  public void IAPlays() {
+
+  public void IAPlays(Cell cell) {
+    ArrayList<int[]> casesValide = new ArrayList<int[]>();
+    // recuperer les voisins valides
+    for (int[] voisin : board.getVoisins(cell.x, cell.y)) {
+      if (board.isValid(voisin[0], voisin[1]) && !board.occupied(voisin[0], voisin[1])) {
+        casesValide.add(voisin);
+      }
+    }
+
+    // Choisir une case random parmis les voisins
+    if (casesValide.size() > 0) {
+      int choix = (int) (Math.random() * casesValide.size());
+      IO.println(choix + "taille: " + casesValide.size());
+      int[] caseChoisie = casesValide.get(choix);
+      IO.println(Main.VERT + "IA a choisis: " + caseChoisie[0] + ", " + caseChoisie[1] + Main.RESET);
+      placePion(false, caseChoisie[0], caseChoisie[1]);
+      return;
+    }
+
+    // Aucun voisins -> choix random
     Boolean casetrouvee = false;
     while (!casetrouvee) {
       Integer x = (int) (Math.random() * this.mapSize);
@@ -157,9 +180,9 @@ public class App {
         casetrouvee = true;
         IO.println(Main.VERT + "IA a choisis: " + x + ", " + y + Main.RESET);
         placePion(false, x, y);
+
       }
     }
-
   }
 
   /**
@@ -233,6 +256,9 @@ public class App {
    */
   public void jouerCase(boolean tourJoueur1, int x, int y) {
     int joueur = tourJoueur1 ? 1 : 2;
+
+    // Recuperer le dernier du joueur move pour l'ia
+    lastMove = board.board[x][y];
 
     // On place le pion sur la cellule logique ET graphique
     board.board[x][y].clicked(tourJoueur1);
