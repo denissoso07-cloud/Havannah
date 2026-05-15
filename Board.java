@@ -245,6 +245,7 @@ public class Board {
       IO.println(Main.JAUNE + "Structure déclenchée : " + depart + Main.RESET);
       for (int i = 0; i < structures.size(); i++) {
         Structure autre = structures.get(i);
+        // on regarde parmi toutes les structures
         if (autre != depart && autre.joueur == joueur && !autre.declenchee) {
           if (sontReliees(depart, autre)) {
             declencherChaine(autre, joueur); // appel récursif

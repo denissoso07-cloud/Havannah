@@ -51,18 +51,15 @@ public class App {
 
     IO.println("Mode : Joueur contre " + (mode.equals("ia") ? "IA" : "Joueur"));
 
-    while (!end) {
+     while (!end) {
       playerPlays();
 
-      if (!end) {
-        if (mode.equals("ia")) {
+      if (!end && mode.equals("ia")) {
           IAPlays(lastMove);
         } else {
           this.turn = !this.turn;
         }
       }
-    }
-
     // 3. Nettoyage final
     supprimerSauvegarde("sauvegarde.txt");
   }
@@ -164,6 +161,7 @@ public class App {
     }
     // Aucun voisins -> choix random
     chooseRandom();
+
   }
 
   /*
@@ -183,7 +181,9 @@ public class App {
 
       }
     }
+    
   }
+
 
   /**
    * Gère l'interaction avec le joueur humain.
